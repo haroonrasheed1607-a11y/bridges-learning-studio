@@ -98,6 +98,63 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     #ls-activities-pages .app-footer{display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px;padding:16px 22px;border-top:1px solid #d5d5d2;background:#ffffff;color:#333333;font-size:13px}
     #ls-activities-pages .splash{position:relative}
     #ls-activities-pages .splash-version{position:absolute;bottom:18px;left:0;right:0;text-align:center;font-size:13px;color:#333333}
+/* Fill short screens naturally, and let longer pages scroll above the footer. */
+#ls-activities-pages{min-height:100vh;min-height:100svh;display:flex;flex-direction:column}
+#ls-activities-pages #ls-application{min-height:100vh;min-height:100svh;display:flex;flex-direction:column;flex:1}
+#ls-activities-pages .top,#ls-activities-pages .main-navigation,#ls-activities-pages .app-footer{flex-shrink:0}
+#ls-activities-pages .shell{flex:1;min-height:0;align-items:stretch}
+#ls-activities-pages .builder{display:flex;flex-direction:column;min-width:0}
+#ls-activities-pages .work{flex:1;width:100%;min-height:0;padding:clamp(16px,2vw,32px)}
+#ls-activities-pages .canvas{width:100%;max-width:1200px;min-height:0;padding:clamp(16px,2vw,28px)}
+#ls-activities-pages .app-footer{margin-top:auto;padding:16px 22px;padding-bottom:max(16px,env(safe-area-inset-bottom));align-items:center}
+#ls-activities-pages .splash{min-height:100vh;min-height:100svh;flex:1}
+#ls-activities-pages .chat{min-width:0;padding:20px 16px}
+#ls-activities-pages .messages{min-width:0}
+#ls-activities-pages textarea,#ls-activities-pages input,#ls-activities-pages select{max-width:100%;min-width:0}
+#ls-activities-pages .canvas table{table-layout:fixed}
+#ls-activities-pages .canvas th,#ls-activities-pages .canvas td{overflow-wrap:anywhere}
+#ls-activities-pages .main-navigation button{white-space:normal}
+#ls-activities-pages dialog{max-height:calc(100svh - 32px);overflow:auto}
+@media(min-width:768px) and (max-width:1023px){
+ #ls-activities-pages .shell{grid-template-columns:minmax(0,3fr) minmax(0,7fr)}
+ #ls-activities-pages .chat{padding:18px 14px}
+}
+@media(max-width:767px){
+ #ls-activities-pages .top{padding:16px;gap:12px}
+ #ls-activities-pages .top h1{font-size:18px}
+ #ls-activities-pages .brand-logo{padding:6px 0 6px 8px}
+ #ls-activities-pages .brand-logo img{width:100px}
+ #ls-activities-pages .top .small{font-size:11px}
+ #ls-activities-pages .main-navigation{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;padding:10px 16px}
+ #ls-activities-pages .main-navigation button{min-height:44px;font-size:12px;padding:8px 6px}
+ #ls-activities-pages .shell{display:flex;flex-direction:column}
+ #ls-activities-pages .builder{order:1;flex:1}
+ #ls-activities-pages .chat{order:2;flex:0 0 auto;border-right:0;border-bottom:0;border-top:1px solid var(--rule);padding:18px 16px;gap:14px}
+ #ls-activities-pages .messages{flex:0 0 auto;gap:12px}
+ #ls-activities-pages .composer{margin-top:0}
+ #ls-activities-pages textarea{min-height:84px}
+ #ls-activities-pages input,#ls-activities-pages select,#ls-activities-pages textarea{font-size:16px}
+ #ls-activities-pages .work{padding:16px}
+ #ls-activities-pages .canvas{padding:16px}
+ #ls-activities-pages .empty{padding:24px 0}
+ #ls-activities-pages .activity-pagination{justify-content:center;gap:6px}
+ #ls-activities-pages .activity-pagination button{min-height:40px}
+ #ls-activities-pages .score-filters{gap:8px}
+ #ls-activities-pages .score-filters button{flex-basis:100%;min-height:44px}
+ #ls-activities-pages .app-footer{padding:14px 16px;font-size:12px}
+ #ls-activities-pages .color-word{font-size:36px;margin:24px 0}
+ #ls-activities-pages .color-options{gap:12px}
+ #ls-activities-pages .color-options button{min-height:88px}
+ #ls-activities-pages dialog{padding:20px;width:calc(100% - 24px)}
+}
+@media(max-width:480px){
+ #ls-activities-pages .activity-table td:nth-child(2)::before{content:'Type / class';display:block;font-size:11px;font-weight:600;margin-bottom:4px}
+ #ls-activities-pages .activity-table td:nth-child(3)::before{content:'Status';display:block;font-size:11px;font-weight:600;margin-bottom:4px}
+ #ls-activities-pages .activity-table td:nth-child(4){grid-column:1/-1}
+ #ls-activities-pages .activity-table .row-actions{margin-top:6px}
+ #ls-activities-pages .activity-table .row-actions button{min-height:40px;padding:8px 12px}
+}
+
   </style>
   <section id="ls-splash" class="splash" aria-label="Welcome">
     <div class="splash-center">
@@ -212,7 +269,7 @@ function colorActivity(){
 }
 root.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;if(b.dataset.colorChoice&&colorChoice===null&&!colorComplete){colorChoice=b.dataset.colorChoice;const q=colorQuestions[colorRound];colorResponses.push({word:q.word,choice:colorChoice,correct:q.word===colorChoice});render();}if(b.dataset.action==='next-color'&&colorChoice!==null){if(colorRound===colorQuestions.length-1)colorComplete=true;else colorRound++;colorChoice=null;render();}if(b.dataset.action==='restart-colors'){resetColors();render();}if(b.dataset.action==='color-scorecard'){scoreActivity=4;scoreView='activity';view='scores';render();}});
 
-get('ls-begin').onclick=()=>{get('ls-splash').hidden=true;get('ls-application').hidden=false;view='previous';render();get('ls-prompt').focus();};
+get('ls-begin').onclick=()=>{get('ls-splash').hidden=true;get('ls-application').hidden=false;view='previous';render();if(window.matchMedia('(min-width: 768px)').matches)get('ls-prompt').focus({preventScroll:true});};
 render();
 })();
   </script>
