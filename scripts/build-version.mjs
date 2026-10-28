@@ -79,7 +79,38 @@ export async function build({ root, env = process.env } = {}) {
     previous && versionUnits(previous) > versionUnits(sourceVersion)
       ? previous
       : sourceVersion;
-  const version = nextVersion(baseline);
+  let minimumVersion = sourceVersion;
+  try {
+    const config = JSON.parse(
+      await readFile(path.join(root, "release.json"), "utf8"),
+    );
+    versionUnits(config.minimumVersion);
+    if (
+      !Array.isArray(config.notes) ||
+      config.notes.length < 1 ||
+      config.notes.length > 3 ||
+      config.notes.some((note) => typeof note !== "string" || !note.trim())
+    ) {
+      throw new Error(
+        "Release notes must contain one to three non-empty sentences.",
+      );
+    }
+    const sentences = [
+      ...new Intl.Segmenter("en", { granularity: "sentence" }).segment(
+        config.notes.join(" "),
+      ),
+    ];
+    if (sentences.length > 3)
+      throw new Error("Release notes must contain at most three sentences.");
+    minimumVersion = config.minimumVersion;
+  } catch (error) {
+    if (error.code !== "ENOENT") throw error;
+  }
+  const incremented = nextVersion(baseline);
+  const version =
+    versionUnits(minimumVersion) > versionUnits(incremented)
+      ? minimumVersion
+      : incremented;
   const output = path.join(root, "dist");
   await mkdir(output, { recursive: true });
   const componentApp = html.includes('id=\"root\"');

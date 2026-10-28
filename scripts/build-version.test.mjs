@@ -52,3 +52,17 @@ test('React entry point shares one version with the Vite release metadata', () =
   assert.equal(metadata.commit, 'react-refactor');
   assert.match(await readFile(path.join(root, 'dist/index.html'), 'utf8'), /content="0.2"/);
 }));
+
+test('the 1.0 milestone is applied once and the next deploy becomes 1.1', () => fixture(async root => {
+  const folder = path.join(root, '.netlify/version-state');
+  await mkdir(folder, { recursive: true });
+  await writeFile(path.join(folder, 'production.json'), JSON.stringify({ version: '0.5' }));
+  await writeFile(path.join(root, 'release.json'), JSON.stringify({ minimumVersion: '1.0', notes: ['A new release.'] }));
+  assert.equal((await build({ root, env: {} })).version, '1.0');
+  assert.equal((await build({ root, env: {} })).version, '1.1');
+}));
+
+test('release notes cannot exceed three sentences', () => fixture(async root => {
+  await writeFile(path.join(root, 'release.json'), JSON.stringify({ minimumVersion: '1.0', notes: ['First sentence. Second sentence. Third sentence. Fourth sentence.'] }));
+  await assert.rejects(build({ root, env: {} }), /three sentences/);
+}));

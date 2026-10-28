@@ -17,6 +17,7 @@ test("every extracted screen renders with the shared provider", async () => {
       ["/src/App.jsx", "Begin"],
       ["/src/components/Navbar.jsx", "Students options"],
       ["/src/components/Footer.jsx", "Version "],
+      ["/src/components/ReleaseNotesDialog.jsx", "What’s new in Version "],
       ["/src/features/activities/ActivityLibrary.jsx", "Play demo"],
       ["/src/features/activities/ActivityBuilder.jsx", "Send to students"],
       ["/src/features/activities/ColorActivity.jsx", "Color name: Red"],

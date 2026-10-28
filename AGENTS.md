@@ -9,3 +9,5 @@
 - Run `npm test` and `npm run build` for structural or behavior changes. Check the affected flows in the browser when available.
 - Keep automatic versioning in the build pipeline. Do not manually increment visible labels or change the source baseline for routine deploys.
 - Commit source and lockfiles, not `dist`, `node_modules`, or `.netlify`.
+
+- Update `release.json` release notes for each feature release, using at most three sentences. Leave `minimumVersion` unchanged for routine deploys.

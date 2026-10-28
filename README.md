@@ -51,8 +51,12 @@ Keep feature work in its own folder. Reusable layout components belong in `src/c
 
 The local version-cache build plugin restores version state before the build and saves it after a successful build. `scripts/build-version.mjs` adds exactly 0.1 and writes build metadata to `.netlify/build-version.json`. Vite uses that same version for the splash, footer, HTML metadata and `version.json`. The build makes no requests to the published website and needs no website credentials. Production and preview branches have separate counters; rebuilding the same commit advances again.
 
-Counter state is cache-backed: manually clearing or losing Netlify's build cache resets it to the source baseline. Builds that finish but fail during publishing may consume a number. A strict counter that survives cache loss requires durable storage or authenticated deployment-history access. Rollbacks display the restored deployment's version. Uploads that bypass the build command do not increment.
+Counter state is cache-backed: manually clearing or losing Netlify's build cache resets it to the configured minimum release. Builds that finish but fail during publishing may consume a number. A strict counter that survives cache loss requires durable storage or authenticated deployment-history access. Rollbacks display the restored deployment's version. Uploads that bypass the build command do not increment.
 
 ## Demo scope
 
 AI responses, saving activities and sending to groups remain simulated. Student registrations, imported students and color results remain in session memory and reset on reload. This refactor does not add backend storage or authentication.
+
+## Release notes
+
+Click the version in the footer or splash screen to see the current release notes. Edit `release.json` with a maximum of three short sentences when releasing changes. Its `minimumVersion` sets the 1.0 milestone once; subsequent cached builds continue at 1.1, 1.2, and so on. Keep the minimum unchanged during routine deployments. Popup UI is isolated in `VersionButton.jsx` and `ReleaseNotesDialog.jsx`.

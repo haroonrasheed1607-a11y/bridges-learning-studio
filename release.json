@@ -1,0 +1,8 @@
+{
+  "minimumVersion": "1.0",
+  "notes": [
+    "Version 1.0 brings together activity creation, student registration, groups, scorecards, and a dashboard.",
+    "Explore the color-learning demo, import students from Excel, and preview sending activities to selected groups.",
+    "The application now uses separate components and feature files to make future improvements easier to maintain."
+  ]
+}

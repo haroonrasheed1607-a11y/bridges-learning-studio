@@ -1,6 +1,7 @@
 import { defineConfig } from "vite";
 import { readFileSync } from "node:fs";
-let release = { version: "0.1", commit: null };
+const releaseConfig = JSON.parse(readFileSync("release.json", "utf8"));
+let release = { version: releaseConfig.minimumVersion, commit: null };
 try {
   release = JSON.parse(readFileSync(".netlify/build-version.json", "utf8"));
 } catch (error) {

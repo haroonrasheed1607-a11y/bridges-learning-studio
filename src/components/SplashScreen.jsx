@@ -1,3 +1,4 @@
+import VersionButton from "./VersionButton.jsx";
 import { useStudio } from "../state/StudioContext.jsx";
 export default function SplashScreen() {
   const { setStarted } = useStudio();
@@ -11,7 +12,9 @@ export default function SplashScreen() {
           Begin
         </button>
       </div>
-      <span className="splash-version">Version {__APP_VERSION__}</span>
+      <span className="splash-version">
+        <VersionButton />
+      </span>
     </section>
   );
 }
