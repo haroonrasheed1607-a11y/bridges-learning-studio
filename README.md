@@ -8,11 +8,12 @@ Open `index.html` in a modern browser. The source contains the complete static d
 
 ## Netlify deployment and automatic versioning
 
-`netlify.toml` configures the build command and the `dist` publish directory. Every build reads the version currently published at Netlify's site URL, adds exactly 0.1, and stamps the generated HTML's splash screen, footer and version metadata. It also publishes `version.json` for the next build to read. The initial migration reads the old site's HTML metadata, so version 0.1 becomes 0.2 automatically.
+`netlify.toml` runs `node scripts/build-version.mjs` and publishes `dist`.
+A local build plugin restores the version state from Netlify's build cache before the command and saves it after a successful build. The command adds exactly 0.1 and updates the splash, footer, metadata, and `version.json` together. The first build advances 0.1 to 0.2; rebuilding the same commit advances again. Production and preview branches have separate counters.
 
-Production uses Netlify's `URL`; preview and branch contexts use `DEPLOY_PRIME_URL` when available. Rebuilding the same commit advances the version once the previous build is published. Failed builds do not change the public version. Version 0.9 advances to 1.0. This does not depend on the build cache or manual edits to the source version.
+The build makes no requests to the published website and needs no website credentials. This fixes the HTTP 401 failure introduced by the previous version lookup. Corrupt counter state fails explicitly rather than silently resetting.
 
-If the published site cannot be read or its version is invalid, the build fails rather than silently resetting the counter. Keep automatic publishing enabled. Restoring an older deploy restores that deploy's version; the next build advances from the version then published. Uploads that bypass the build command do not increment the version.
+Counter state is cache-backed: manually clearing or losing Netlify's build cache resets it to the source baseline. Builds that finish but fail during publishing may consume a number. A strict counter that survives cache loss requires a durable database or authenticated deployment-history access. Rollbacks display the restored deployment's version. Uploads that bypass the build command do not increment.
 
 Run versioning checks with `node --test scripts/build-version.test.mjs`.
 

@@ -22,34 +22,6 @@ export function htmlVersion(html) {
   return match[1];
 }
 
-export async function publishedVersion(baseUrl, fetcher = fetch) {
-  const base = new URL(baseUrl);
-  if (base.protocol !== 'https:' && base.hostname !== 'localhost' && base.hostname !== '127.0.0.1') {
-    throw new Error('The published site URL must use HTTPS.');
-  }
-  async function request(pathname) {
-    const target = new URL(pathname, base);
-    target.searchParams.set('version-check', `${Date.now()}-${Math.random().toString(36).slice(2)}`);
-    const response = await fetcher(target, {
-      cache: 'no-store',
-      headers: { 'Cache-Control': 'no-cache' },
-      signal: AbortSignal.timeout(15000),
-    });
-    if (response.status === 404) return null;
-    if (!response.ok) throw new Error(`Cannot read the published version (${response.status}).`);
-    return response.text();
-  }
-  const manifest = await request('/version.json');
-  if (manifest !== null) {
-    const version = JSON.parse(manifest).version;
-    versionUnits(version);
-    return version;
-  }
-  // The existing live demo predates version.json. Bootstrap from its HTML metadata.
-  const html = await request('/');
-  return html === null ? null : htmlVersion(html);
-}
-
 export function stampVersion(html, version) {
   versionUnits(version);
   htmlVersion(html);
@@ -64,19 +36,24 @@ export function stampVersion(html, version) {
   return updated;
 }
 
-export async function build({ root, env = process.env, fetcher = fetch } = {}) {
+export async function build({ root, env = process.env } = {}) {
   root ??= path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
   const html = await readFile(path.join(root, 'index.html'), 'utf8');
   const sourceVersion = htmlVersion(html);
-  const siteUrl = env.CONTEXT && env.CONTEXT !== 'production'
-    ? (env.DEPLOY_PRIME_URL || env.URL)
-    : env.URL;
-  if (env.NETLIFY === 'true' && !siteUrl) {
-    throw new Error('Netlify did not provide a site URL. Refusing to reset the version.');
+  // Build-time state is restored by the local Netlify cache plugin.
+  // Never call the public site: deployment access controls can return HTTP 401.
+  const context = env.CONTEXT || 'production';
+  const scope = context === 'production' ? 'production' : `${context}-${env.BRANCH || 'preview'}`;
+  const statePath = path.join(root, '.netlify', 'version-state', `${encodeURIComponent(scope)}.json`);
+  let previous = null;
+  try {
+    previous = JSON.parse(await readFile(statePath, 'utf8')).version;
+    versionUnits(previous);
+  } catch (error) {
+    if (error.code !== 'ENOENT') throw error;
   }
-  const liveVersion = siteUrl ? await publishedVersion(siteUrl, fetcher) : null;
-  const baseline = liveVersion && versionUnits(liveVersion) > versionUnits(sourceVersion)
-    ? liveVersion : sourceVersion;
+  const baseline = previous && versionUnits(previous) > versionUnits(sourceVersion)
+    ? previous : sourceVersion;
   const version = nextVersion(baseline);
   const output = path.join(root, 'dist');
   await mkdir(output, { recursive: true });
@@ -87,6 +64,8 @@ export async function build({ root, env = process.env, fetcher = fetch } = {}) {
     commit: env.COMMIT_REF || null,
     builtAt: new Date().toISOString(),
   }, null, 2) + '\n');
+  await mkdir(path.dirname(statePath), { recursive: true });
+  await writeFile(statePath, JSON.stringify({ version }) + '\n');
   console.log(`Bridges Learning Studio: ${baseline} -> ${version}`);
   return { version, output };
 }
