@@ -3,8 +3,7 @@ import { useWorkspace } from "./WorkspaceProvider.jsx";
 import "./auth.css";
 export default function Authentication() {
   const workspace = useWorkspace();
-  const [signup, setSignup] = useState(false),
-    [pending, setPending] = useState(false),
+  const [pending, setPending] = useState(false),
     [message, setMessage] = useState("");
   async function submit(event) {
     event.preventDefault();
@@ -14,14 +13,7 @@ export default function Authentication() {
     try {
       if (workspace.needsWorkspace)
         await workspace.createWorkspace(data.get("school"), data.get("name"));
-      else if (signup) {
-        const signedIn = await workspace.signUp(
-          data.get("email"),
-          data.get("password"),
-        );
-        if (!signedIn)
-          setMessage("Check your email to confirm your account, then sign in.");
-      } else await workspace.signIn(data.get("email"), data.get("password"));
+      else await workspace.signIn(data.get("username"), data.get("password"));
     } catch (error) {
       setMessage(error.message);
     } finally {
@@ -39,9 +31,7 @@ export default function Authentication() {
         <h1>
           {workspace.needsWorkspace
             ? "Create your school workspace"
-            : signup
-              ? "Create a teacher account"
-              : "Teacher sign in"}
+            : "Teacher sign in"}
         </h1>
         <form onSubmit={submit}>
           {workspace.needsWorkspace ? (
@@ -58,11 +48,13 @@ export default function Authentication() {
           ) : (
             <>
               <label className="field">
-                Email
+                Username
                 <input
-                  name="email"
-                  type="email"
+                  name="username"
+                  type="text"
                   autoComplete="username"
+                  autoCapitalize="none"
+                  spellCheck={false}
                   required
                 />
               </label>
@@ -71,8 +63,7 @@ export default function Authentication() {
                 <input
                   name="password"
                   type="password"
-                  autoComplete={signup ? "new-password" : "current-password"}
-                  minLength={8}
+                  autoComplete="current-password"
                   required
                 />
               </label>
@@ -86,24 +77,9 @@ export default function Authentication() {
               ? "Please wait…"
               : workspace.needsWorkspace
                 ? "Create workspace"
-                : signup
-                  ? "Create account"
-                  : "Sign in"}
+                : "Sign in"}
           </button>
         </form>
-        {!workspace.needsWorkspace && (
-          <button
-            className="auth-link"
-            onClick={() => {
-              setSignup(!signup);
-              setMessage("");
-            }}
-          >
-            {signup
-              ? "Already registered? Sign in"
-              : "Create a teacher account"}
-          </button>
-        )}
         <p role="status">{message || workspace.error}</p>
         <button className="auth-link" onClick={workspace.tryDemo}>
           Continue with the demo

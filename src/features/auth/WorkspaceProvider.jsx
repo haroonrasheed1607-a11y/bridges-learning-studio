@@ -1,3 +1,4 @@
+import { loginIdentity } from "./loginIdentity.js";
 import { createContext, useContext, useEffect, useState } from "react";
 import { supabase, isSupabaseConfigured } from "../../lib/supabaseClient.js";
 const WorkspaceContext = createContext({
@@ -57,23 +58,14 @@ export function WorkspaceProvider({ children }) {
       active = false;
     };
   }, [session?.user.id, demo]);
-  async function signIn(email, password) {
+  async function signIn(username, password) {
     setError("");
     const { error } = await supabase.auth.signInWithPassword({
-      email,
+      email: loginIdentity(username),
       password,
     });
     if (error) throw error;
     setDemo(false);
-  }
-  async function signUp(email, password) {
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: { emailRedirectTo: window.location.origin },
-    });
-    if (error) throw error;
-    return Boolean(data.session);
   }
   async function createWorkspace(schoolName, teacherName) {
     const { error } = await supabase.rpc("create_school_workspace", {
@@ -107,7 +99,6 @@ export function WorkspaceProvider({ children }) {
         loading,
         error,
         signIn,
-        signUp,
         createWorkspace,
         signOut,
         tryDemo: () => setDemo(true),

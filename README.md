@@ -62,3 +62,5 @@ The existing demo remains available through **Continue with the demo**. Demo rec
 ## Release notes
 
 Click the version in the footer or splash screen to see the current release notes. Edit `release.json` with a maximum of three short sentences when releasing changes. Its `minimumVersion` sets the 1.0 milestone once; subsequent cached builds continue at 1.1, 1.2, and so on. Keep the minimum unchanged during routine deployments. Popup UI is isolated in `VersionButton.jsx` and `ReleaseNotesDialog.jsx`.
+
+The current sign-in flow uses a pre-provisioned `admin` username with no email verification step. The credential is provisioned directly in Supabase and is not embedded in source code.

@@ -1,8 +1,8 @@
 {
   "minimumVersion": "1.0",
   "notes": [
-    "Teachers can sign in to a private school workspace and save students and groups across sessions.",
-    "Saved activities now keep separate JSX versions and prompt history, with assignments linked to the version sent.",
-    "Teacher-led color assessments can save student results and display them in activity and student scorecards."
+    "Sign in with the admin username without an email verification step.",
+    "The sign-in screen now uses username and password fields.",
+    "School data and activity versions continue to save privately in Supabase."
   ]
 }

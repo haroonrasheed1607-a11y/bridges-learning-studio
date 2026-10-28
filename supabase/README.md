@@ -24,9 +24,9 @@ The current player renders the supported color/text activity definition. JSX sou
 
 `src/config/supabase.json` contains the project URL and its **publishable** key. Both are intentionally public browser configuration. Never add a secret/service-role key. Deployments can override these with `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY`.
 
-Teachers use email/password registration and email confirmation. Confirm the email and return to the application to sign in. Set the Supabase Auth Site URL and allowed redirect URLs to `https://learningapp-bridges.netlify.app` before broad rollout. Supabase's default email sender restricts delivery; configure your own SMTP provider before inviting teachers outside your Supabase organization. Do not disable confirmation to bypass setup.
+The current release uses a pre-provisioned `admin` username linked to a confirmed Supabase account; there is no email verification step in the login flow. The password is held only as a hash in Supabase and must not be committed to source. Self-service registration is currently hidden. Set the Supabase Auth Site URL and allowed redirect URLs to `https://learningapp-bridges.netlify.app` before broad rollout. Supabase's default email sender restricts delivery; configure your own SMTP provider before inviting teachers outside your Supabase organization. Do not disable confirmation to bypass setup.
 
-The free plan does not include compromised-password checks, automatic database backups, or continuous activity guarantees. The application requires passwords of at least eight characters. Database and file-storage backup procedures should be added before real school rollout.
+The free plan does not include compromised-password checks, automatic database backups, or continuous activity guarantees. The requested temporary admin credential is supported; broader password-policy and user-management flows remain future work. Database and file-storage backup procedures should be added before real school rollout.
 
 ## Verification
 
