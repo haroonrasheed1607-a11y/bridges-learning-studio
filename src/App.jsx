@@ -1,3 +1,5 @@
+import Authentication from "./features/auth/Authentication.jsx";
+import { useWorkspace } from "./features/auth/WorkspaceProvider.jsx";
 import { useStudio } from "./state/StudioContext.jsx";
 import MainLayout from "./components/MainLayout.jsx";
 import SplashScreen from "./components/SplashScreen.jsx";
@@ -16,13 +18,45 @@ const screens = {
   dashboard: Dashboard,
 };
 export default function App() {
-  const { started, view } = useStudio();
+  const { started, view, cloudLoading, cloudError, refresh } = useStudio();
+  const workspace = useWorkspace();
   const Screen = screens[view];
+  if (started && workspace.loading)
+    return (
+      <div id="ls-activities-pages">
+        <section className="auth-screen" role="status">
+          Opening your workspace…
+        </section>
+      </div>
+    );
+  if (started && (workspace.requiresSignIn || workspace.needsWorkspace))
+    return (
+      <div id="ls-activities-pages">
+        <Authentication />
+      </div>
+    );
   return (
     <div id="ls-activities-pages">
       {started ? (
         <MainLayout>
-          <Screen />
+          {cloudLoading ? (
+            <p role="status">Loading school data…</p>
+          ) : cloudError ? (
+            <div role="alert">
+              <p>Could not load school data: {cloudError}</p>
+              <button
+                onClick={() =>
+                  refresh()
+                    .then(() => window.location.reload())
+                    .catch(() => {})
+                }
+              >
+                Retry
+              </button>
+            </div>
+          ) : (
+            <Screen />
+          )}
         </MainLayout>
       ) : (
         <SplashScreen />

@@ -1,26 +1,18 @@
 import { useEffect, useRef, useState } from "react";
 import { useStudio } from "../../state/StudioContext.jsx";
 export default function SendActivityDialog({ onClose }) {
-  const { groups, groupSize, activeActivity, updateStatus, setFeedback } =
+  const { groups, groupSize, recipientCount, activeActivity, sendActivity, busy, isCloud } =
     useStudio();
   const [selected, setSelected] = useState([]);
   const dialog = useRef(null);
   useEffect(() => {
     const node = dialog.current;
-    node.showModal();
+    if (!node.open) node.showModal();
   }, []);
-  const count = selected.reduce((total, index) => total + groupSize(index), 0);
-  function send() {
-    if (!selected.length) return;
-    updateStatus("Sent");
-    setFeedback(
-      "Sample send confirmed for " +
-        count +
-        " students across " +
-        selected.length +
-        " groups. No notifications were sent.",
-    );
-    onClose();
+  const count = recipientCount(selected);
+  async function send() {
+    if (!selected.length || busy) return;
+    if (await sendActivity(selected)) onClose();
   }
   return (
     <dialog
@@ -59,11 +51,17 @@ export default function SendActivityDialog({ onClose }) {
         {selected.length === 1 ? "group" : "groups"}
       </div>
       <p className="small">
-        Sample groups. Sending is simulated in this wireframe.
+        {isCloud
+          ? "The saved activity version will be assigned to the current students in these groups."
+          : "Sample groups. Sending is simulated in this wireframe."}
       </p>
       <div className="actions">
         <button onClick={onClose}>Cancel</button>
-        <button className="primary" disabled={!selected.length} onClick={send}>
+        <button
+          className="primary"
+          disabled={!selected.length || busy}
+          onClick={send}
+        >
           Send activity
         </button>
       </div>

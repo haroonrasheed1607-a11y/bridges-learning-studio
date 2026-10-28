@@ -1,7 +1,19 @@
 import { useStudio } from "../../state/StudioContext.jsx";
 import { colorQuestions, colorPalette } from "../../data/demoData.js";
 export default function ColorActivity() {
-  const { color, setColor, showActivityScores } = useStudio();
+  const {
+    color,
+    setColor,
+    showActivityScores,
+    isCloud,
+    students,
+    resultStudentId,
+    setResultStudentId,
+    recordColorResult,
+    saved,
+    busy,
+    activeActivity,
+  } = useStudio();
   const question = colorQuestions[color.round];
   const response = color.responses[color.round];
   const points = color.responses.filter((r) => r.correct).length;
@@ -19,6 +31,25 @@ export default function ColorActivity() {
     <>
       <div className="eyebrow">Assessment / Playable demo</div>
       <h2>Match the color</h2>
+      {isCloud && (
+        <label className="field">
+          Student taking this activity
+          <select
+            value={resultStudentId}
+            disabled={color.responses.length > 0}
+            onChange={(event) => setResultStudentId(event.target.value)}
+          >
+            <option value="">
+              Preview only — do not record a student result
+            </option>
+            {students.map((student) => (
+              <option key={student.dbId} value={student.dbId}>
+                {student.name} ({student.id})
+              </option>
+            ))}
+          </select>
+        </label>
+      )}
       {color.complete ? (
         <>
           <div className="color-result">
@@ -48,6 +79,18 @@ export default function ColorActivity() {
               ))}
             </tbody>
           </table>
+          {isCloud && resultStudentId && (
+            <>
+              <p className="small">
+                {saved
+                  ? "Record this teacher-led assessment against the saved activity version."
+                  : "Save this activity version before recording the result."}
+              </p>
+              <button disabled={!saved || busy} onClick={recordColorResult}>
+                Save student result
+              </button>
+            </>
+          )}
           <div className="actions">
             <button
               className="primary"
@@ -57,7 +100,7 @@ export default function ColorActivity() {
             >
               Try again
             </button>
-            <button onClick={() => showActivityScores("color-recognition")}>
+            <button onClick={() => showActivityScores(activeActivity.id)}>
               View scorecard
             </button>
           </div>

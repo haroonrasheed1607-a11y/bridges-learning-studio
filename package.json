@@ -9,10 +9,12 @@
     "test": "node --test scripts/*.test.mjs src/features/students/*.test.js src/features/scorecards/*.test.js"
   },
   "dependencies": {
+    "@supabase/supabase-js": "2.118.0",
     "react": "19.3.1",
     "react-dom": "19.3.1"
   },
   "devDependencies": {
+    "@electric-sql/pglite": "0.5.13",
     "vite": "8.3.5"
   },
   "type": "module"

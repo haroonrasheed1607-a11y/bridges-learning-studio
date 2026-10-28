@@ -1,7 +1,7 @@
 import "./dashboard.css";
 import { useStudio } from "../../state/StudioContext.jsx";
 export default function Dashboard() {
-  const { activities, groups, groupSize, navigate } = useStudio();
+  const { activities, groups, groupSize, navigate, isCloud } = useStudio();
   const metrics = [
     ["Activities", activities.length],
     ["Student groups", groups.length],
@@ -11,7 +11,9 @@ export default function Dashboard() {
     <>
       <h2>Dashboard</h2>
       <p className="small">
-        Demo overview · Includes sample student group sizes.
+        {isCloud
+          ? "Your school workspace overview."
+          : "Demo overview · Includes sample student group sizes."}
       </p>
       <div className="dashboard-metrics">
         {metrics.map(([label, count]) => (

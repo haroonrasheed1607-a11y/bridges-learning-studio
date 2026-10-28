@@ -31,7 +31,7 @@ npm run preview
 | `src/components/ChatPanel.jsx` | Chat messages, prompt input, activity mode. |
 | `src/components/MainLayout.jsx` | Composes navigation, chat, main panel, and footer. |
 | `src/components/SplashScreen.jsx` | Logo and Begin screen. |
-| `src/features/activities/` | Activity library, builder, color demo, send dialog. |
+| `src/features/activities/` | Activity library, builder, color demo, versioned JSX package builder, history selector, send dialog. |
 | `src/features/students/` | Excel validation/import, manual registration, group overview. |
 | `src/features/scorecards/` | Activity/student scorecards and result mapping. |
 | `src/features/dashboard/` | Summary counts and activity overview. |
@@ -53,9 +53,11 @@ The local version-cache build plugin restores version state before the build and
 
 Counter state is cache-backed: manually clearing or losing Netlify's build cache resets it to the configured minimum release. Builds that finish but fail during publishing may consume a number. A strict counter that survives cache loss requires durable storage or authenticated deployment-history access. Rollbacks display the restored deployment's version. Uploads that bypass the build command do not increment.
 
-## Demo scope
+## School workspace and demo modes
 
-AI responses, saving activities and sending to groups remain simulated. Student registrations, imported students and color results remain in session memory and reset on reload. This refactor does not add backend storage or authentication.
+Supabase Database, Auth and private Storage back the signed-in school workspace. See `supabase/README.md` for schema, configuration, file versioning and rollout details. The published browser configuration uses only a publishable key; no service-role credential is shipped.
+
+The existing demo remains available through **Continue with the demo**. Demo records reset on reload and are separate from school records. AI prompt responses remain simulated. In the school workspace, student registrations, groups, saved activity versions, assignment recipients and recorded teacher-led results persist in Supabase. An assignment records access; email/push notifications and student self-service sign-in are not implemented yet.
 
 ## Release notes
 

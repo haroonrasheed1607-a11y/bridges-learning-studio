@@ -1,8 +1,8 @@
 {
   "minimumVersion": "1.0",
   "notes": [
-    "Version 1.0 brings together activity creation, student registration, groups, scorecards, and a dashboard.",
-    "Explore the color-learning demo, import students from Excel, and preview sending activities to selected groups.",
-    "The application now uses separate components and feature files to make future improvements easier to maintain."
+    "Teachers can sign in to a private school workspace and save students and groups across sessions.",
+    "Saved activities now keep separate JSX versions and prompt history, with assignments linked to the version sent.",
+    "Teacher-led color assessments can save student results and display them in activity and student scorecards."
   ]
 }

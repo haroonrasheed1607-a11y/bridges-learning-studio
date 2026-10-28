@@ -52,7 +52,8 @@ export default function ActivityLibrary() {
                   <td>
                     <div className="row-actions">
                       <button onClick={() => openActivity(activity)}>
-                        {activity.id === "color-recognition"
+                        {activity.kind === "color" ||
+                        activity.id === "color-recognition"
                           ? "Play demo"
                           : "Open"}
                       </button>

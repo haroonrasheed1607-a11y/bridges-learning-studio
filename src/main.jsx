@@ -1,3 +1,4 @@
+import { WorkspaceProvider } from "./features/auth/WorkspaceProvider.jsx";
 import "./styles/app.css";
 import React from "react";
 import { createRoot } from "react-dom/client";
@@ -6,8 +7,10 @@ import { StudioProvider } from "./state/StudioContext.jsx";
 
 createRoot(document.getElementById("root")).render(
   <React.StrictMode>
-    <StudioProvider>
-      <App />
-    </StudioProvider>
+    <WorkspaceProvider>
+      <StudioProvider>
+        <App />
+      </StudioProvider>
+    </WorkspaceProvider>
   </React.StrictMode>,
 );

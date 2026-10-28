@@ -2,7 +2,15 @@ import { useState } from "react";
 import { useStudio } from "../../state/StudioContext.jsx";
 import { validateImport } from "./importValidation.js";
 export default function StudentRegistration() {
-  const { students, addStudents, groups, feedback, setFeedback } = useStudio();
+  const {
+    students,
+    addStudents,
+    groups,
+    feedback,
+    setFeedback,
+    isCloud,
+    busy,
+  } = useStudio();
   const [pending, setPending] = useState([]);
   const [filename, setFilename] = useState("");
   const [error, setError] = useState("");
@@ -42,23 +50,28 @@ export default function StudentRegistration() {
       setReading(false);
     }
   }
-  function importStudents() {
+  async function importStudents() {
     if (
       !pending.length ||
       pending.some((row) => row.error) ||
-      !addStudents(pending)
+      !(await addStudents(pending))
     ) {
       setError(
         "Correct the workbook errors or duplicate IDs, then upload again.",
       );
       return;
     }
-    setFeedback(pending.length + " students imported into this preview.");
+    setFeedback(
+      pending.length +
+        (isCloud
+          ? " students saved to your school workspace."
+          : " students imported into this preview."),
+    );
     setPending([]);
     setFilename("");
     setError("");
   }
-  function register(event) {
+  async function register(event) {
     event.preventDefault();
     const form = event.currentTarget;
     const data = new FormData(form);
@@ -69,11 +82,16 @@ export default function StudentRegistration() {
       setFeedback("Enter a name and student ID.");
       return;
     }
-    if (!addStudents([{ name, id, group }])) {
+    if (!(await addStudents([{ name, id, group }]))) {
       setFeedback("That student ID has already been added.");
       return;
     }
-    setFeedback(name + " added in this sample.");
+    setFeedback(
+      name +
+        (isCloud
+          ? " saved to your school workspace."
+          : " added in this sample."),
+    );
     form.reset();
   }
   const invalid = pending.filter((row) => row.error).length;
@@ -82,6 +100,12 @@ export default function StudentRegistration() {
       <div className="eyebrow">Student registration</div>
       <h2>Sign Up Students</h2>
       <h3>Upload an Excel file</h3>
+      {!groups.length && (
+        <p role="status">
+          Create a student group first, then use its exact name in the Excel
+          Class column.
+        </p>
+      )}
       <p className="small">
         Use the sample format: Student ID, Student Name, Class.
       </p>
@@ -143,7 +167,7 @@ export default function StudentRegistration() {
             <div className="actions">
               <button
                 className="primary"
-                disabled={!!invalid}
+                disabled={!!invalid || busy}
                 onClick={importStudents}
               >
                 Import {pending.length} students
@@ -178,7 +202,11 @@ export default function StudentRegistration() {
               ))}
             </select>
           </label>
-          <button type="submit" className="primary">
+          <button
+            type="submit"
+            className="primary"
+            disabled={busy || !groups.length}
+          >
             Sign up student
           </button>
         </form>
@@ -202,7 +230,7 @@ export default function StudentRegistration() {
               <tr key={student.id}>
                 <td>{student.name}</td>
                 <td>{student.id}</td>
-                <td>{groups[student.group].name}</td>
+                <td>{groups[student.group]?.name || "No group"}</td>
               </tr>
             ))}
           </tbody>
@@ -211,7 +239,9 @@ export default function StudentRegistration() {
         <p className="small">No students added yet.</p>
       )}
       <p className="small" style={{ marginTop: 18 }}>
-        Sample registration only. No real accounts are created.
+        {isCloud
+          ? "Student records are saved privately. Student login accounts are not created by this form."
+          : "Sample registration only. No real accounts are created."}
       </p>
     </>
   );

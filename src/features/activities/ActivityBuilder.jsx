@@ -1,3 +1,4 @@
+import VersionHistory from "./VersionHistory.jsx";
 import { useState } from "react";
 import { useStudio } from "../../state/StudioContext.jsx";
 import ColorActivity from "./ColorActivity.jsx";
@@ -11,11 +12,32 @@ export default function ActivityBuilder() {
     saved,
     saveActivity,
     feedback,
+    busy,
+    source,
+    isCloud,
+    editActivity,
   } = useStudio();
   const [sending, setSending] = useState(false);
   return (
     <>
-      {draft && activity.id === "color-recognition" ? (
+      <label className="field">
+        Activity title
+        <input
+          value={activity.title}
+          onChange={(event) => editActivity({ title: event.target.value })}
+        />
+      </label>
+      <label className="field">
+        Learning objective
+        <textarea
+          value={activity.goal || ""}
+          onChange={(event) => editActivity({ goal: event.target.value })}
+        />
+      </label>
+      <VersionHistory />
+      {draft &&
+      mode === "assessment" &&
+      (activity.kind === "color" || activity.id === "color-recognition") ? (
         <ColorActivity />
       ) : (
         <>
@@ -62,15 +84,38 @@ export default function ActivityBuilder() {
         className="actions"
         style={{ justifyContent: draft ? "space-between" : "flex-end" }}
       >
-        {draft && <button onClick={saveActivity}>Save activity</button>}
+        {draft && (
+          <button
+            disabled={busy || !activity.title.trim()}
+            onClick={saveActivity}
+          >
+            {busy ? "Saving…" : isCloud ? "Save new version" : "Save activity"}
+          </button>
+        )}
         <button
           className="primary"
-          disabled={!draft}
+          disabled={!draft || busy}
           onClick={() => setSending(true)}
         >
           Send to students
         </button>
       </div>
+      {source && (
+        <details>
+          <summary>View saved JSX source</summary>
+          <pre
+            style={{
+              whiteSpace: "pre-wrap",
+              overflowWrap: "anywhere",
+              maxHeight: 300,
+              overflow: "auto",
+              fontSize: 12,
+            }}
+          >
+            {source}
+          </pre>
+        </details>
+      )}
       <div className="status" role="status">
         {feedback}
       </div>

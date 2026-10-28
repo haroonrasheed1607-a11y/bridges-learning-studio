@@ -1,7 +1,9 @@
+import CloudScorecards from "./CloudScorecards.jsx";
 import { useStudio } from "../../state/StudioContext.jsx";
 import { scoreRoster, resultFor, activityResults } from "./scoreData.js";
 export default function Scorecards() {
   const {
+    isCloud,
     activities,
     students,
     color,
@@ -12,6 +14,7 @@ export default function Scorecards() {
     scoreStudentId,
     setScoreStudentId,
   } = useStudio();
+  if (isCloud) return <CloudScorecards />;
   const roster = scoreRoster(students, color);
   const assessments = activities.filter((a) => a.type === "Assessment");
   const activity =
