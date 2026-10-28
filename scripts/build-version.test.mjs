@@ -42,3 +42,13 @@ test('plugin restores state between clean checkouts and same-commit redeploys ad
  await plugin.onPreBuild({utils});assert.equal((await build({root,env:{}})).version,'0.3');await plugin.onPostBuild({utils});
  assert.equal(JSON.parse(await readFile(path.join(root,'dist/version.json'),'utf8')).version,'0.3');
 }));
+
+test('React entry point shares one version with the Vite release metadata', () => fixture(async root => {
+  await writeFile(path.join(root, 'index.html'), '<meta name="application-version" content="0.1"><div id="root"></div>');
+  const release = await build({ root, env: { COMMIT_REF: 'react-refactor' } });
+  assert.equal(release.version, '0.2');
+  const metadata = JSON.parse(await readFile(path.join(root, '.netlify/build-version.json'), 'utf8'));
+  assert.equal(metadata.version, '0.2');
+  assert.equal(metadata.commit, 'react-refactor');
+  assert.match(await readFile(path.join(root, 'dist/index.html'), 'utf8'), /content="0.2"/);
+}));

@@ -1,4 +1,4 @@
-const stateDirectory = '.netlify/version-state';
+const stateDirectory = ".netlify/version-state";
 module.exports = {
   async onPreBuild({ utils }) {
     await utils.cache.restore(stateDirectory);

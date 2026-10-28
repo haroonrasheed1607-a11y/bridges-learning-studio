@@ -1,0 +1,29 @@
+#ls-activities-pages .dashboard-metrics {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  margin: 24px 0 30px;
+}
+#ls-activities-pages .dashboard-metric {
+  padding: 20px;
+  border: 1px solid #dce2ed;
+  border-radius: 8px;
+  background: #f7f9fd;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  color: #1f1f1f;
+}
+#ls-activities-pages .dashboard-metric strong {
+  font-size: 30px;
+  color: #0b2467;
+}
+@media (max-width: 480px) {
+  #ls-activities-pages .dashboard-metrics {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+  #ls-activities-pages .dashboard-metric {
+    padding: 16px;
+  }
+}

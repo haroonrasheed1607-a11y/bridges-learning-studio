@@ -1,22 +1,58 @@
 # Bridges Learning Studio
 
-An education demo with an activity library, Excel student import, scorecards, and a playable color-matching assessment.
+A React + Vite education demo, deployed from this repository to Netlify.
 
-## Run locally
+## Development
 
-Open `index.html` in a modern browser. The source contains the complete static demo and a baseline version. To produce a local deployment build, run `node scripts/build-version.mjs` and open `dist/index.html`.
+Use Node.js 22.12+ and npm:
 
-## Netlify deployment and automatic versioning
+```sh
+npm ci
+npm run dev
+```
 
-`netlify.toml` runs `node scripts/build-version.mjs` and publishes `dist`.
-A local build plugin restores the version state from Netlify's build cache before the command and saves it after a successful build. The command adds exactly 0.1 and updates the splash, footer, metadata, and `version.json` together. The first build advances 0.1 to 0.2; rebuilding the same commit advances again. Production and preview branches have separate counters.
+Open the local URL printed by Vite. `index.html` is the app entry point; run the development server instead of opening it directly as a file.
 
-The build makes no requests to the published website and needs no website credentials. This fixes the HTTP 401 failure introduced by the previous version lookup. Corrupt counter state fails explicitly rather than silently resetting.
+```sh
+npm test
+npm run build
+npm run preview
+```
 
-Counter state is cache-backed: manually clearing or losing Netlify's build cache resets it to the source baseline. Builds that finish but fail during publishing may consume a number. A strict counter that survives cache loss requires a durable database or authenticated deployment-history access. Rollbacks display the restored deployment's version. Uploads that bypass the build command do not increment.
+`npm run build` prepares the next version and creates the production files in `dist`. Do not commit `dist`, `node_modules`, or `.netlify`.
 
-Run versioning checks with `node --test scripts/build-version.test.mjs`.
+## Where to work
+
+| Location | Responsibility |
+| --- | --- |
+| `src/App.jsx` | Selects the current feature screen. |
+| `src/components/Navbar.jsx` | Activities and Students dropdowns, Dashboard navigation. |
+| `src/components/Footer.jsx` | Shared footer and deployment version. |
+| `src/components/ChatPanel.jsx` | Chat messages, prompt input, activity mode. |
+| `src/components/MainLayout.jsx` | Composes navigation, chat, main panel, and footer. |
+| `src/components/SplashScreen.jsx` | Logo and Begin screen. |
+| `src/features/activities/` | Activity library, builder, color demo, send dialog. |
+| `src/features/students/` | Excel validation/import, manual registration, group overview. |
+| `src/features/scorecards/` | Activity/student scorecards and result mapping. |
+| `src/features/dashboard/` | Summary counts and activity overview. |
+| `src/state/StudioContext.jsx` | Shared session state and actions used across screens. |
+| `src/data/demoData.js` | Sample activities, classes, learners, and color questions. |
+| `src/styles/` | Shared styles and navbar styles. |
+| `public/assets/` | Bridges logo and downloadable sample workbook. |
+| `public/vendor/` | Existing SheetJS Excel reader, kept at its prior version. |
+
+All screens use React components and handlers. There is no legacy HTML-string rendering or document-wide event dispatcher. User-entered content is rendered as text by React.
+
+Keep feature work in its own folder. Reusable layout components belong in `src/components`; data shared by screens belongs in the provider. Do not put feature markup or business rules in `index.html` or expand `App.jsx` into a combined screen implementation.
+
+## Netlify and automatic versioning
+
+`netlify.toml` runs `npm run build` and publishes `dist`. Netlify installs the pinned dependencies using `package-lock.json`.
+
+The local version-cache build plugin restores version state before the build and saves it after a successful build. `scripts/build-version.mjs` adds exactly 0.1 and writes build metadata to `.netlify/build-version.json`. Vite uses that same version for the splash, footer, HTML metadata and `version.json`. The build makes no requests to the published website and needs no website credentials. Production and preview branches have separate counters; rebuilding the same commit advances again.
+
+Counter state is cache-backed: manually clearing or losing Netlify's build cache resets it to the source baseline. Builds that finish but fail during publishing may consume a number. A strict counter that survives cache loss requires durable storage or authenticated deployment-history access. Rollbacks display the restored deployment's version. Uploads that bypass the build command do not increment.
 
 ## Demo scope
 
-AI chat, account creation, and sending activities to student groups are simulated. Imported students and activity results remain in memory and reset when the page reloads. There is no backend or authentication.
+AI responses, saving activities and sending to groups remain simulated. Student registrations, imported students and color results remain in session memory and reset on reload. This refactor does not add backend storage or authentication.
