@@ -82,6 +82,10 @@ export default function StudentRegistration() {
       setFeedback("Enter a name and student ID.");
       return;
     }
+    if (data.get("group") === "" || !groups[group]) {
+      setFeedback("Select a class.");
+      return;
+    }
     if (!(await addStudents([{ name, id, group }]))) {
       setFeedback("That student ID has already been added.");
       return;
@@ -194,7 +198,8 @@ export default function StudentRegistration() {
           </label>
           <label className="field">
             Class
-            <select name="group">
+            <select name="group" defaultValue="" required>
+              <option value="" disabled>--</option>
               {groups.map((group, index) => (
                 <option key={group.name} value={index}>
                   {group.name}

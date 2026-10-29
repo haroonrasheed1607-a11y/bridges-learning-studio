@@ -1,8 +1,7 @@
 {
   "minimumVersion": "1.0",
   "notes": [
-    "Sign in with the admin username without an email verification step.",
-    "The sign-in screen now uses username and password fields.",
-    "School data and activity versions continue to save privately in Supabase."
+    "The Class field now starts with -- when adding a student.",
+    "Choose a class before saving the student; after saving, the field returns to --."
   ]
 }
