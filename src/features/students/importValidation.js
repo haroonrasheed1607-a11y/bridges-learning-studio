@@ -38,7 +38,7 @@ export function validateImport(matrix, groups, students = []) {
     const errors = [];
     if (!row.id) errors.push("Missing ID");
     if (!row.name) errors.push("Missing name");
-    if (group < 0) errors.push("Unknown class");
+    if (group < 0 && row.classText && row.classText !== "--") errors.push("Unknown class");
     if (
       row.id &&
       (existing.has(row.id.toLowerCase()) ||

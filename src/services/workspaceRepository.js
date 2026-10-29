@@ -34,10 +34,7 @@ export function createWorkspaceRepository(client) {
             name: student.name,
             email: student.email,
             groupIds,
-            group: Math.max(
-              0,
-              groups.findIndex((g) => groupIds.includes(g.id)),
-            ),
+            group: groups.findIndex((g) => groupIds.includes(g.id)),
           };
         }),
         activities: activities
@@ -71,7 +68,7 @@ export function createWorkspaceRepository(client) {
           p_rows: rows.map((row) => ({
             name: row.name,
             student_code: row.id,
-            group_id: groups[row.group].id,
+            group_id: groups[row.group]?.id ?? null,
           })),
         }),
       );

@@ -47,3 +47,8 @@ test("bad workbook shape, empty files and excessive row counts fail clearly", ()
     /1,000/,
   );
 });
+
+test("students can be imported without classes, including into a school with no groups", () => {
+  const rows = validateImport([header, ["U1", "Una", ""], ["U2", "Bo", "--"]], []);
+  assert.ok(rows.every(row => row.group === -1 && row.error === ""));
+});

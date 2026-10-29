@@ -1,7 +1,8 @@
 {
   "minimumVersion": "1.0",
   "notes": [
-    "The Class field now starts with -- when adding a student.",
-    "Choose a class before saving the student; after saving, the field returns to --."
+    "Students can now be registered without creating or selecting a class.",
+    "Unassigned students show -- in the Class column, and Excel imports accept an empty class.",
+    "Registration errors now retain their specific explanation."
   ]
 }

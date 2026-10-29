@@ -231,7 +231,10 @@ export function StudioProvider({ children }) {
   }
   async function addStudents(rows) {
     const existing = new Set(students.map((s) => s.id.toLowerCase()));
-    if (rows.some((s) => existing.has(s.id.toLowerCase()))) return false;
+    if (rows.some((s) => existing.has(s.id.toLowerCase()))) {
+      setFeedback("That student ID has already been added.");
+      return false;
+    }
     if (repository) {
       setBusy(true);
       try {

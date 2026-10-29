@@ -77,17 +77,16 @@ export default function StudentRegistration() {
     const data = new FormData(form);
     const name = data.get("name").trim(),
       id = data.get("studentId").trim(),
-      group = Number(data.get("group"));
+      group = data.get("group") === "" ? -1 : Number(data.get("group"));
     if (!name || !id) {
       setFeedback("Enter a name and student ID.");
       return;
     }
-    if (data.get("group") === "" || !groups[group]) {
+    if (group !== -1 && !groups[group]) {
       setFeedback("Select a class.");
       return;
     }
     if (!(await addStudents([{ name, id, group }]))) {
-      setFeedback("That student ID has already been added.");
       return;
     }
     setFeedback(
@@ -104,14 +103,9 @@ export default function StudentRegistration() {
       <div className="eyebrow">Student registration</div>
       <h2>Sign Up Students</h2>
       <h3>Upload an Excel file</h3>
-      {!groups.length && (
-        <p role="status">
-          Create a student group first, then use its exact name in the Excel
-          Class column.
-        </p>
-      )}
+      <p className="small">Class is optional. Leave it as -- to register without a class.</p>
       <p className="small">
-        Use the sample format: Student ID, Student Name, Class.
+        Use the sample format: Student ID, Student Name, Class (optional).
       </p>
       <div className="actions" style={{ marginTop: 12 }}>
         <a
@@ -198,8 +192,8 @@ export default function StudentRegistration() {
           </label>
           <label className="field">
             Class
-            <select name="group" defaultValue="" required>
-              <option value="" disabled>--</option>
+            <select name="group" defaultValue="">
+              <option value="">--</option>
               {groups.map((group, index) => (
                 <option key={group.name} value={index}>
                   {group.name}
@@ -210,9 +204,9 @@ export default function StudentRegistration() {
           <button
             type="submit"
             className="primary"
-            disabled={busy || !groups.length}
+            disabled={busy}
           >
-            Sign up student
+            {busy ? "Saving…" : "Sign up student"}
           </button>
         </form>
       </details>
@@ -235,7 +229,7 @@ export default function StudentRegistration() {
               <tr key={student.id}>
                 <td>{student.name}</td>
                 <td>{student.id}</td>
-                <td>{groups[student.group]?.name || "No group"}</td>
+                <td>{groups[student.group]?.name || "--"}</td>
               </tr>
             ))}
           </tbody>

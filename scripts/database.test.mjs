@@ -34,6 +34,8 @@ test("workspace SQL enforces school boundaries, immutable versions and server-si
         "utf8",
       ),
     );
+    await db.exec(await readFile(new URL(
+      "../supabase/migrations/20261029145921_optional_student_class.sql", import.meta.url), "utf8"));
     const as = async (user, sql, params = []) => {
       await db.exec(
         `reset role;select set_config('request.jwt.claim.sub','${user}',false);set role authenticated;`,
@@ -45,13 +47,22 @@ test("workspace SQL enforces school boundaries, immutable versions and server-si
       "select public.create_school_workspace('School A','Alice') id",
     );
     const school = first.rows[0].id;
+    // A fresh school with no groups can register a learner.
+    await as(alice, "select public.import_students($1::jsonb)", [
+      JSON.stringify([{ student_code: "U1", name: "Unassigned", group_id: null }]),
+    ]);
+    assert.equal((await as(alice, "select count(*)::int n from public.student_profiles where student_code='U1'")).rows[0].n, 1);
+    assert.equal((await as(alice, "select count(*)::int n from public.group_members")).rows[0].n, 0);
+    await assert.rejects(as(alice, "select public.import_students($1::jsonb)", [
+      JSON.stringify([{ student_code: "INVALID", name: "Invalid", group_id: "99999999-0000-4000-8000-000000000000" }]),
+    ]), /Unknown group/);
     const ga = (
       await as(alice, "select public.create_student_group('Section A') id")
     ).rows[0].id;
     await as(alice, "select public.import_students($1::jsonb)", [
       JSON.stringify([{ student_code: "A1", name: "Learner", group_id: ga }]),
     ]);
-    const student = (await as(alice, "select id from public.student_profiles"))
+    const student = (await as(alice, "select id from public.student_profiles where student_code='A1'"))
       .rows[0].id;
     await assert.rejects(
       as(alice, "select public.import_students($1::jsonb)", [
