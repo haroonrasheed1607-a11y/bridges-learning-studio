@@ -1,3 +1,4 @@
+import StudentPortal from "./features/student-portal/StudentPortal.jsx";
 import Authentication from "./features/auth/Authentication.jsx";
 import { useWorkspace } from "./features/auth/WorkspaceProvider.jsx";
 import { useStudio } from "./state/StudioContext.jsx";
@@ -29,6 +30,8 @@ export default function App() {
         </section>
       </div>
     );
+  if (started && workspace.studentToken)
+    return <div id="ls-activities-pages"><StudentPortal /></div>;
   if (started && (workspace.requiresSignIn || workspace.needsWorkspace))
     return (
       <div id="ls-activities-pages">

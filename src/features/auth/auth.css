@@ -45,3 +45,7 @@
   padding: 4px 8px;
   font-size: 12px;
 }
+
+#ls-activities-pages .login-roles {display:flex;gap:8px;margin-bottom:24px;}
+#ls-activities-pages .login-roles button {flex:1;}
+#ls-activities-pages .login-roles button[aria-pressed="true"] {background:#0b2467;border-color:#0b2467;color:white;}

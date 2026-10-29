@@ -3,6 +3,7 @@ import { useWorkspace } from "./WorkspaceProvider.jsx";
 import "./auth.css";
 export default function Authentication() {
   const workspace = useWorkspace();
+  const [role, setRole] = useState("teacher");
   const [pending, setPending] = useState(false),
     [message, setMessage] = useState("");
   async function submit(event) {
@@ -13,6 +14,7 @@ export default function Authentication() {
     try {
       if (workspace.needsWorkspace)
         await workspace.createWorkspace(data.get("school"), data.get("name"));
+      else if (role === "student") await workspace.signInStudent(data.get("studentId"));
       else await workspace.signIn(data.get("username"), data.get("password"));
     } catch (error) {
       setMessage(error.message);
@@ -31,9 +33,19 @@ export default function Authentication() {
         <h1>
           {workspace.needsWorkspace
             ? "Create your school workspace"
-            : "Teacher sign in"}
+            : role === "student" ? "Student sign in" : "Teacher sign in"}
         </h1>
-        <form onSubmit={submit}>
+        {!workspace.needsWorkspace && (
+          <div className="login-roles" role="group" aria-label="Choose login type">
+            {["teacher", "student"].map(value => (
+              <button key={value} type="button" aria-pressed={role === value}
+                disabled={pending} onClick={() => { setRole(value); setMessage(""); }}>
+                {value === "student" ? "Student" : "Teacher"}
+              </button>
+            ))}
+          </div>
+        )}
+        <form onSubmit={submit} key={role}>
           {workspace.needsWorkspace ? (
             <>
               <label className="field">
@@ -43,6 +55,14 @@ export default function Authentication() {
               <label className="field">
                 School name
                 <input name="school" required maxLength={160} />
+              </label>
+            </>
+          ) : role === "student" ? (
+            <>
+              <p>Enter the Student ID provided by your teacher. No password needed.</p>
+              <label className="field">Student ID
+                <input name="studentId" autoComplete="username" autoCapitalize="none"
+                  spellCheck={false} required maxLength={160} placeholder="Enter your Student ID" />
               </label>
             </>
           ) : (

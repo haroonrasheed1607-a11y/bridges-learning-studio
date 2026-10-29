@@ -12,6 +12,13 @@ export function WorkspaceProvider({ children }) {
     [profile, setProfile] = useState(null),
     [loading, setLoading] = useState(isSupabaseConfigured),
     [error, setError] = useState("");
+  const [studentToken, setStudentToken] = useState(() =>
+    typeof window === "undefined" ? "" : sessionStorage.getItem("bridges-student-session") || "");
+  function saveStudentToken(token) {
+    setStudentToken(token);
+    if (token) sessionStorage.setItem("bridges-student-session", token);
+    else sessionStorage.removeItem("bridges-student-session");
+  }
   const [demo, setDemo] = useState(!isSupabaseConfigured);
   useEffect(() => {
     if (!supabase) return;
@@ -34,7 +41,7 @@ export function WorkspaceProvider({ children }) {
     };
   }, []);
   useEffect(() => {
-    if (!session || demo) {
+    if (!session || demo || studentToken) {
       setProfile(null);
       return;
     }
@@ -57,7 +64,7 @@ export function WorkspaceProvider({ children }) {
     return () => {
       active = false;
     };
-  }, [session?.user.id, demo]);
+  }, [session?.user.id, demo, studentToken]);
   async function signIn(username, password) {
     setError("");
     const { error } = await supabase.auth.signInWithPassword({
@@ -66,6 +73,24 @@ export function WorkspaceProvider({ children }) {
     });
     if (error) throw error;
     setDemo(false);
+  }
+  async function signInStudent(studentId) {
+    setError("");
+    if (session) {
+      const result = await supabase.auth.signOut({ scope: "local" });
+      if (result.error) throw result.error;
+    }
+    const { data, error } = await supabase.rpc("student_login", { p_student_code: studentId });
+    if (error) throw error;
+    saveStudentToken(data.token);
+    setProfile(null);
+    setDemo(false);
+  }
+  async function signOutStudent() {
+    const { error } = await supabase.rpc("student_logout", { p_token: studentToken });
+    saveStudentToken("");
+    setDemo(false);
+    setError(error ? "Student session cleared on this device." : "");
   }
   async function createWorkspace(schoolName, teacherName) {
     const { error } = await supabase.rpc("create_school_workspace", {
@@ -91,13 +116,16 @@ export function WorkspaceProvider({ children }) {
     <WorkspaceContext.Provider
       value={{
         configured: isSupabaseConfigured,
-        isCloud: !demo && Boolean(profile) && profile.id === session?.user.id,
-        requiresSignIn: isSupabaseConfigured && !demo && !session,
-        needsWorkspace: isSupabaseConfigured && !demo && session && !profile,
+        isCloud: !studentToken && !demo && Boolean(profile) && profile.id === session?.user.id,
+        requiresSignIn: isSupabaseConfigured && !demo && !session && !studentToken,
+        needsWorkspace: isSupabaseConfigured && !demo && session && !profile && !studentToken,
         profile,
         session,
         loading,
         error,
+        studentToken,
+        signInStudent,
+        signOutStudent,
         signIn,
         createWorkspace,
         signOut,

@@ -36,6 +36,8 @@ test("workspace SQL enforces school boundaries, immutable versions and server-si
     );
     await db.exec(await readFile(new URL(
       "../supabase/migrations/20261029145921_optional_student_class.sql", import.meta.url), "utf8"));
+    await db.exec(await readFile(new URL(
+      "../supabase/migrations/20261029150648_student_id_sessions.sql", import.meta.url), "utf8"));
     const as = async (user, sql, params = []) => {
       await db.exec(
         `reset role;select set_config('request.jwt.claim.sub','${user}',false);set role authenticated;`,
@@ -212,6 +214,49 @@ test("workspace SQL enforces school boundaries, immutable versions and server-si
       db.query("select public.create_school_workspace('Intruder','Intruder')"),
       /permission denied/,
     );
+
+    // Passwordless student sessions must expose only the selected learner.
+    const rpc = async (sql, params=[]) => {
+      await db.exec("reset role;select set_config('request.jwt.claim.sub','',false);set role anon;");
+      return db.query(sql, params);
+    };
+    await assert.rejects(rpc("select public.student_login('MISSING')"), /not found/);
+    const login = (await rpc("select public.student_login(' a1 ') data")).rows[0].data;
+    assert.equal(login.token.length, 64);
+    const workspace = (await rpc("select public.student_workspace($1) data", [login.token])).rows[0].data;
+    assert.equal(workspace.student.name, "Learner");
+    assert.equal(workspace.activities.length, 1);
+    assert.equal(workspace.activities[0].definition.questions[0].answer, undefined);
+    assert.equal(workspace.activities[0].definition.answer, undefined);
+    assert.equal(workspace.results.length, 1);
+    const unassignedLogin = (await rpc("select public.student_login('U1') data")).rows[0].data;
+    const empty = (await rpc("select public.student_workspace($1) data", [unassignedLogin.token])).rows[0].data;
+    assert.equal(empty.activities.length, 0);
+    assert.equal(empty.results.length, 0);
+    await assert.rejects(rpc("select public.student_workspace('bad-token')"), /expired/);
+    const studentAttempt = "30000000-0000-4000-8000-000000000002";
+    await assert.rejects(rpc("select public.student_submit($1,$2,$3,$4::jsonb)",
+      [unassignedLogin.token, assignment.assignment_id, studentAttempt, '{"q1":"Red"}']), /not assigned/);
+    const grade = (await rpc("select public.student_submit($1,$2,$3,$4::jsonb) data",
+      [login.token, assignment.assignment_id, studentAttempt, '{"q1":"Red","score":999}'])).rows[0].data;
+    assert.equal(grade.score, 1);
+    assert.equal(grade.possiblePoints, 1);
+    const retry = (await rpc("select public.student_submit($1,$2,$3,$4::jsonb) data",
+      [login.token, assignment.assignment_id, studentAttempt, '{"q1":"Blue"}'])).rows[0].data;
+    assert.equal(retry.score, 1);
+    await as(alice, "select 1");
+    const saved = (await db.query("select * from public.student_attempts where id=$1", [studentAttempt])).rows[0];
+    assert.equal(saved.submitted_by, null);
+    assert.equal(saved.submission_source, "student");
+    assert.equal(saved.version_id, v1.version_id);
+    await rpc("select public.student_logout($1)", [login.token]);
+    await assert.rejects(rpc("select public.student_workspace($1)", [login.token]), /expired/);
+    await assert.rejects(rpc("select * from app_private.student_sessions"), /permission denied/);
+    await db.exec("reset role;update app_private.student_sessions set expires_at=now()-interval '1 second';");
+    await assert.rejects(rpc("select public.student_workspace($1)", [unassignedLogin.token]), /expired/);
+    // The same code in two schools must never select an arbitrary learner.
+    await as(bob, "select public.import_students('[{\"student_code\":\"A1\",\"name\":\"Other learner\"}]'::jsonb)");
+    await assert.rejects(rpc("select public.student_login('A1')"), /not unique/);
     assert.ok(school);
   } finally {
     await db.close();

@@ -1,8 +1,8 @@
 {
   "minimumVersion": "1.0",
   "notes": [
-    "Students can now be registered without creating or selecting a class.",
-    "Unassigned students show -- in the Class column, and Excel imports accept an empty class.",
-    "Registration errors now retain their specific explanation."
+    "Choose Teacher or Student on the sign-in screen; students need only their Student ID.",
+    "Students can open assigned activities and submit answers, with results calculated and saved by the server.",
+    "Student sessions show only their own activities and results and expire after eight hours."
   ]
 }

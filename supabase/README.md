@@ -4,11 +4,19 @@ Project: Bridges Learning Studio (`fhjaxywcholkmavipyjq`), free plan, Mumbai reg
 
 ## Database
 
-Migrations contain school-scoped teacher profiles, students, groups/memberships, activities, immutable source versions, assignments/recipient snapshots and student attempts/answers. Database routines apply writes transactionally; exposed routines run as the caller and delegate to guarded private-schema bodies. Anonymous clients cannot read school records.
+Migrations contain school-scoped teacher profiles, students, groups/memberships, activities, immutable source versions, assignments/recipient snapshots and student attempts/answers. Database routines apply writes transactionally; exposed routines run as the caller and delegate to guarded private-schema bodies. Anonymous clients cannot query school tables directly. Guarded student RPCs require a short-lived bearer token for the selected learner.
 
-`create_school_workspace` creates the first teacher as administrator of their own school. Additional teacher invitations and student self-service sign-in are not implemented in this release. Student records are created by a signed-in teacher; no email or password is required for a student record.
+`create_school_workspace` creates the first teacher as administrator of their own school. Additional teacher invitations are not implemented in this release. Student records are created by a signed-in teacher; no email or password is required for a student record.
 
 Teacher-led color assessments can be recorded against a selected student and saved activity version. The server derives the score from the saved question answer key. The browser cannot submit an arbitrary final score. Assignments snapshot their student recipients and exact activity version.
+
+## Temporary Student-ID login
+
+The sign-in screen offers Teacher and Student. `student_login` resolves a case-insensitive Student ID only when exactly one school record matches. IDs shared by multiple schools are rejected rather than selecting an arbitrary student. This is intentionally a temporary access model: anyone who knows an ID can act as that learner. Add a school identifier and a stronger student credential before broad rollout.
+
+Login issues an eight-hour random bearer token, kept in sessionStorage and hashed in `app_private.student_sessions`. No Supabase Auth account or password is created for students. The private sessions table has RLS enabled and no direct client privileges or policies; the advisor's no-policy INFO is intentional default denial. The guarded private routines validate the token for every workspace and submission call; logout deletes the session. Only explicitly named entry points are granted to anonymous callers.
+
+The student portal shows only that learner's assignment snapshots and results. Assessment answer keys and JSX source paths are omitted from responses. The trusted player supports color/text assessments and text lessons. Submissions are checked against assignment recipients, graded against the saved version, and stored with `submission_source='student'` and no teacher submitter. Retry IDs are idempotent. Teacher-led submissions keep their existing actor and default source.
 
 ## JSX files
 
