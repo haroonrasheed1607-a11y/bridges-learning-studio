@@ -1,3 +1,4 @@
+import { APP_VERSION } from "../config/appVersion.js";
 import { useEffect, useId, useRef } from "react";
 import release from "../../release.json";
 
@@ -16,7 +17,7 @@ export default function ReleaseNotesDialog({ onClose }) {
       aria-describedby={descriptionId}
       onCancel={onClose}
     >
-      <h2 id={titleId}>What’s new in Version {__APP_VERSION__}</h2>
+      <h2 id={titleId}>What’s new in Version {APP_VERSION}</h2>
       <p id={descriptionId}>{release.notes.join(" ")}</p>
       <div className="actions">
         <button type="button" className="primary" onClick={onClose}>

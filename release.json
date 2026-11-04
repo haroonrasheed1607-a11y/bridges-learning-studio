@@ -1,7 +1,7 @@
 {
   "minimumVersion": "1.0",
   "notes": [
-    "Open Upload HTML activity directly from your activity list or the Activities menu.",
-    "Choose an HTML file, check its embedded questions, and test it in an isolated preview."
+    "Fixed a startup crash when the hosting build does not inject the application version.",
+    "Version labels now have a safe fallback so the application can open."
   ]
 }
