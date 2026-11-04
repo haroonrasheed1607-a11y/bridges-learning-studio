@@ -1,20 +1,25 @@
 import { useState } from 'react';
 import { useStudio } from '../../state/StudioContext.jsx';
-const seed=[{id:'talking',name:'Talking',goal:'Express needs and communicate clearly in everyday situations.',concepts:['Start a conversation','Express a need','Ask a relevant question','Listen and respond','Close politely'],scenarios:['Ordering in a restaurant','Communicating at a family event'],groups:[]}];
 export default function Tracks(){
- const {groups}=useStudio();
- const [tracks,setTracks]=useState(seed),[selected,setSelected]=useState('talking'),[notice,setNotice]=useState('');
- const track=tracks.find(t=>t.id===selected);
- function update(patch){setTracks(all=>all.map(t=>t.id===selected?{...t,...patch}:t));setNotice('Draft updated for this session.');}
- function add(event,key){event.preventDefault();const form=event.currentTarget,value=new FormData(form).get('value').trim();if(value){update({[key]:[...track[key],value]});form.reset();}}
- return <section><h2>Tracks &amp; Scenarios</h2><p>A track develops a skill through consistent concepts. Scenarios change where learners practise it.</p><p className="small">Planning preview · Drafts last until the page reloads. Group assignments here are illustrative and do not send activities.</p>
- <div className="actions">{tracks.map(t=><button key={t.id} aria-pressed={t.id===selected} onClick={()=>setSelected(t.id)}>{t.name}</button>)}</div>
- <form onSubmit={e=>{e.preventDefault();const f=e.currentTarget,name=new FormData(f).get('name').trim();if(!name)return;const id=crypto.randomUUID();setTracks([...tracks,{id,name,goal:'',concepts:[],scenarios:[],groups:[]}]);setSelected(id);f.reset();}}><label className="field">New track<input name="name" required maxLength={160} placeholder="For example, Independent shopping"/></label><button>Add track</button></form>
- <div className="line"/><h3>{track.name}</h3><label className="field">Capacity to develop<textarea value={track.goal} onChange={e=>update({goal:e.target.value})}/></label>
- <h3>Core concepts</h3><p className="small">Keep these concepts consistent across scenarios. Add concepts as the track develops.</p><ol>{track.concepts.map((c,i)=><li key={i}>{c}</li>)}</ol>
- <form onSubmit={e=>add(e,'concepts')}><label className="field">New concept<input name="value" required maxLength={300}/></label><button>Add concept</button></form>
- <div className="line"/><h3>Practice scenarios</h3>{track.scenarios.length?<ul>{track.scenarios.map((s,i)=><li key={i}><strong>{s}</strong><p className="small">Practise the track’s core concepts in this setting.</p></li>)}</ul>:<p>Add a setting where learners can use this skill.</p>}
- <form onSubmit={e=>add(e,'scenarios')}><label className="field">New scenario<input name="value" required maxLength={300} placeholder="For example, Asking for directions"/></label><button>Add scenario</button></form>
- <div className="line"/><h3>Groups practising this track</h3>{groups.length?groups.map((g,i)=><label key={g.id||i} style={{display:'block',marginBottom:10}}><input type="checkbox" checked={track.groups.includes(g.id||g.name)} onChange={e=>{const id=g.id||g.name;update({groups:e.target.checked?[...track.groups,id]:track.groups.filter(x=>x!==id)});}}/> {g.name}</label>):<p>Create a student group to plan its tracks here.</p>}
- <p role="status">{notice}</p></section>;
+ const {students,groups,activities,versions,attempts,isCloud}=useStudio();
+ const [studentId,setStudentId]=useState(''),[group,setGroup]=useState(''),[added,setAdded]=useState([]),[detail,setDetail]=useState(null);
+ const roster=students.filter(s=>group===''||s.group===Number(group));
+ const student=roster.find(s=>(s.dbId||s.id)===studentId)||roster[0];
+ const names=[...new Set([...versions.flatMap(v=>(v.definition?.questions||[]).map(q=>q.concept).filter(Boolean)),...added])];
+ const cols=activities.filter(a=>versions.some(v=>v.activity_id===a.id));
+ function records(name,activity){return attempts.filter(a=>a.student_id===student?.dbId&&versions.some(v=>v.id===a.version_id&&v.activity_id===activity.id)).map(a=>{
+  const version=versions.find(v=>v.id===a.version_id),qs=(version.definition.questions||[]).filter(q=>q.concept===name);
+  const answers=(a.answers||[]).filter(answer=>qs.some(q=>q.id===answer.question_id));
+  return {...a,version,answers,possible:qs.reduce((n,q)=>n+Number(q.points||1),0),earned:answers.reduce((n,q)=>n+Number(q.points),0)};
+ }).filter(a=>a.possible>0).sort((a,b)=>new Date(b.completed_at)-new Date(a.completed_at));}
+ return <section><h2>Student Tracks</h2><p>Each row is a skill. Each column is an activity. Results belong to the selected student.</p>
+ <div className="score-filters"><label className="field">Group<select value={group} onChange={e=>{setGroup(e.target.value);setDetail(null);}}><option value="">All groups</option>{groups.map((g,i)=><option key={g.id||i} value={i}>{g.name}</option>)}</select></label>
+ <label className="field">Student<select value={student?.dbId||student?.id||''} onChange={e=>{setStudentId(e.target.value);setDetail(null);}}>{!roster.length&&<option value="">No students</option>}{roster.map(s=><option key={s.dbId||s.id} value={s.dbId||s.id}>{s.name} ({s.id})</option>)}</select></label></div>
+ {!isCloud&&<p className="small">Demo mode. Real track scores appear after recorded assessments are available in your school workspace.</p>}
+ <form onSubmit={e=>{e.preventDefault();const f=e.currentTarget,name=new FormData(f).get('track').trim();if(name&&!names.includes(name))setAdded([...added,name]);f.reset();}}><label className="field">Add a track row<input name="track" placeholder="For example, Talking" required maxLength={160}/></label><button>Add track</button></form><p className="small">New rows are session drafts. Existing tracks come from the concept labels on saved activity questions.</p>
+ <div style={{overflowX:'auto',marginTop:20}}><table><caption style={{textAlign:'left',paddingBottom:12}}>{student?student.name+' — individual track record':'Individual track record'}</caption><thead><tr><th scope="col">Track / Skill</th>{cols.map(a=><th scope="col" key={a.id}>{a.title}</th>)}</tr></thead><tbody>{names.map(name=><tr key={name}><th scope="row">{name}</th>{cols.map(a=>{const rows=records(name,a),latest=rows[0];const evaluated=versions.some(v=>v.activity_id===a.id&&v.definition?.questions?.some(q=>q.concept===name));return <td key={a.id}>{latest&&latest.answers.length?<button onClick={()=>setDetail({name,activity:a.title,rows})}>{latest.earned} / {latest.possible}</button>:evaluated?'No recorded result':'—'}</td>;})}</tr>)}</tbody></table></div>
+ {!names.length&&<p>No tracks yet. Add a row or save an assessment with concept labels.</p>}{!cols.length&&<p>No saved activities yet. Activity columns will appear here when assessments are saved.</p>}
+ <p className="small">Cells show the latest recorded attempt for this track. — means the track was not evaluated. Scores are not combined into an overall rating.</p>
+ {detail&&<section aria-label="Track attempt history"><h3>{detail.name} · {detail.activity}</h3><button onClick={()=>setDetail(null)}>Close history</button>{detail.rows.map(r=><article key={r.id} style={{marginTop:16}}><p>{new Date(r.completed_at).toLocaleString()} · Version {r.version.version_number} · {r.earned} / {r.possible}</p><ul>{r.answers.map(a=><li key={a.question_id}>{r.version.definition.questions.find(q=>q.id===a.question_id)?.prompt} — Response: {typeof a.response==='string'?a.response:JSON.stringify(a.response)} · {a.correct?'Correct':'Incorrect'}</li>)}</ul></article>)}</section>}
+ </section>;
 }

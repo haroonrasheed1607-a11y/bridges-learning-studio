@@ -1,7 +1,7 @@
 {
   "minimumVersion": "1.0",
   "notes": [
-    "Added a Tracks & Scenarios planning preview with core concepts and practice settings.",
-    "Plan which groups practise each track; drafts currently last for the session only."
+    "Student Tracks now shows a student-specific table with skills as rows and activities as columns.",
+    "Scores use recorded question evidence for each track; attempts can be reviewed without assigning progress stages."
   ]
 }

@@ -73,7 +73,7 @@ export default function Navbar() {
           items={[
             { label: "Add", action: () => navigate("students") },
             { label: "Group", action: () => navigate("groups") },
-            { label: "Tracks & Scenarios", action: () => navigate("tracks") },
+            { label: "Student Tracks", action: () => navigate("tracks") },
             { label: "Scorecards", action: () => navigate("scores") },
           ]}
         />

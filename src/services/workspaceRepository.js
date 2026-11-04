@@ -21,6 +21,7 @@ export function createWorkspaceRepository(client) {
             .select("*")
             .order("completed_at", { ascending: false }),
         ]).then((results) => results.map(checked));
+      const answers = checked(await client.from("attempt_answers").select("*"));
       const groupRows = groups.map((group) => ({ ...group, count: 0 }));
       return {
         groups: groupRows,
@@ -54,7 +55,7 @@ export function createWorkspaceRepository(client) {
             };
           }),
         versions,
-        attempts,
+        attempts: attempts.map(attempt => ({...attempt, answers: answers.filter(answer => answer.attempt_id === attempt.id)})),
       };
     },
     async addGroup(name) {
