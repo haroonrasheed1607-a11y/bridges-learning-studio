@@ -1,7 +1,7 @@
 {
   "minimumVersion": "1.0",
   "notes": [
-    "Activities now includes an Upload HTML screen with file and embedded JSON validation.",
-    "Test uploaded activities in an isolated local preview before future assignment integration."
+    "Open Upload HTML activity directly from your activity list or the Activities menu.",
+    "Choose an HTML file, check its embedded questions, and test it in an isolated preview."
   ]
 }

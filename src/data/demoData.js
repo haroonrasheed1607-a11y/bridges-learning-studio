@@ -8,6 +8,7 @@ export const labels = {
   dashboard: "Dashboard",
 };
 export const introductions = {
+  upload: "Upload your HTML activity, check its details, and test it before assigning it to students.",
   build:
     "Try this color-matching activity: read the word, then choose the matching color. Each question has four choices.",
   previous: "Open a saved activity to continue editing or review its results.",

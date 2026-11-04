@@ -3,6 +3,7 @@ const pageSize = 4;
 export default function ActivityLibrary() {
   const {
     activities,
+    navigate,
     createActivity,
     openActivity,
     showActivityScores,
@@ -33,6 +34,7 @@ export default function ActivityLibrary() {
                 >
                   + Add New Activity
                 </button>
+                <button type="button" style={{marginLeft: 12}} onClick={() => navigate("upload")}>Upload HTML activity</button>
               </td>
             </tr>
             {[...activities]
