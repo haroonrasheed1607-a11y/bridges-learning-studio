@@ -34,7 +34,7 @@ export default function ActivityLibrary() {
                 >
                   + Add New Activity
                 </button>
-                <button type="button" style={{marginLeft: 12}} onClick={() => navigate("upload")}>Upload HTML activity</button>
+                <button type="button" style={{marginLeft: 12}} onClick={() => navigate("upload")}>Upload Activity</button>
               </td>
             </tr>
             {[...activities]

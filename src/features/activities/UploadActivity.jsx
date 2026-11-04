@@ -1,6 +1,7 @@
 import { useState } from 'react';
+import { sampleActivityPrompt } from './sampleActivityPrompt.js';
 export default function UploadActivity() {
- const [file,setFile]=useState(null),[error,setError]=useState(''),[preview,setPreview]=useState(false),[reading,setReading]=useState(false);
+ const [file,setFile]=useState(null),[error,setError]=useState(''),[preview,setPreview]=useState(false),[reading,setReading]=useState(false),[copyStatus,setCopyStatus]=useState('');
  async function upload(selected){
   setError('');setFile(null);setPreview(false);if(!selected)return;setReading(true);
   try{
@@ -22,7 +23,12 @@ export default function UploadActivity() {
    setFile({name:selected.name,html,data});
   }catch(cause){setError(cause instanceof SyntaxError?'The embedded activity JSON is invalid.':cause.message);}finally{setReading(false);}
  }
- return <section><h2>Upload activity</h2><p>Upload the self-contained HTML file created with the Bridges activity prompt.</p>
+ return <section><h2>Upload Activity</h2><p>Upload the self-contained HTML file created with the Bridges activity prompt.</p>
+ <details style={{marginBottom:24}}><summary>Need help? Sample activity prompt</summary>
+ <p style={{marginTop:12}}>Copy this prompt into your AI chat. Replace the activity brief, download the HTML file, then upload it below.</p>
+ <label className="field">Sample prompt<textarea readOnly value={sampleActivityPrompt} rows={15} style={{width:'100%',resize:'vertical'}} /></label>
+ <button type="button" onClick={async()=>{try{await navigator.clipboard.writeText(sampleActivityPrompt);setCopyStatus('Prompt copied.');}catch{setCopyStatus('Select the prompt above and copy it manually.');}}}>Copy prompt</button><p role="status">{copyStatus}</p>
+ </details>
  <label className="field">Activity HTML file<input type="file" accept=".html,.htm,text/html" disabled={reading} onChange={e=>upload(e.target.files[0])}/></label>
  <p className="small">HTML · Maximum 5 MB · Embedded activity JSON version 1.0</p>
  {reading&&<p role="status">Checking file…</p>}{error&&<p role="alert">{error}</p>}

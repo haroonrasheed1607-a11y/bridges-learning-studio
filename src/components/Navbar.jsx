@@ -60,7 +60,7 @@ export default function Navbar() {
           active={["previous", "build", "upload"].includes(view)}
           items={[
             { label: "Create", action: createActivity },
-            { label: "Upload HTML", action: () => navigate("upload") },
+            { label: "Upload Activity", action: () => navigate("upload") },
             {
               label: "Previous Activities",
               action: () => navigate("previous"),

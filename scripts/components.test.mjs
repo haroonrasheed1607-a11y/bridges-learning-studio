@@ -18,7 +18,7 @@ test("every extracted screen renders with the shared provider", async () => {
       ["/src/components/Navbar.jsx", "Students options"],
       ["/src/components/Footer.jsx", "Version "],
       ["/src/components/ReleaseNotesDialog.jsx", "What’s new in Version "],
-      ["/src/features/activities/ActivityLibrary.jsx", "Upload HTML activity"],
+      ["/src/features/activities/ActivityLibrary.jsx", "Upload Activity"],
       ["/src/features/activities/UploadActivity.jsx", "Activity HTML file"],
       ["/src/features/activities/ActivityBuilder.jsx", "Send to students"],
       ["/src/features/activities/SendActivityDialog.jsx", "Select student groups"],

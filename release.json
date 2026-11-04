@@ -1,7 +1,7 @@
 {
   "minimumVersion": "1.0",
   "notes": [
-    "Fixed a startup crash when the hosting build does not inject the application version.",
-    "Version labels now have a safe fallback so the application can open."
+    "The chat panel is hidden and activity screens use the full available width.",
+    "Upload Activity now includes a copyable sample prompt for creating compatible HTML activities."
   ]
 }

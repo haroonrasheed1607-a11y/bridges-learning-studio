@@ -923,3 +923,5 @@ dialog {
     padding: 8px 12px;
   }
 }
+
+#ls-activities-pages .shell.without-chat { grid-template-columns: minmax(0, 1fr); }
