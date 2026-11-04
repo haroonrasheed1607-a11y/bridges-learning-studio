@@ -69,10 +69,11 @@ export default function Navbar() {
         />
         <NavDropdown
           label="Students"
-          active={["students", "groups", "scores"].includes(view)}
+          active={["students", "groups", "scores", "tracks"].includes(view)}
           items={[
             { label: "Add", action: () => navigate("students") },
             { label: "Group", action: () => navigate("groups") },
+            { label: "Tracks & Scenarios", action: () => navigate("tracks") },
             { label: "Scorecards", action: () => navigate("scores") },
           ]}
         />

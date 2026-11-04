@@ -1,7 +1,7 @@
 {
   "minimumVersion": "1.0",
   "notes": [
-    "The chat panel is hidden and activity screens use the full available width.",
-    "Upload Activity now includes a copyable sample prompt for creating compatible HTML activities."
+    "Added a Tracks & Scenarios planning preview with core concepts and practice settings.",
+    "Plan which groups practise each track; drafts currently last for the session only."
   ]
 }

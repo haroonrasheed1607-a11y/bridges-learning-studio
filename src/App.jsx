@@ -11,7 +11,9 @@ import StudentGroups from "./features/students/StudentGroups.jsx";
 import Scorecards from "./features/scorecards/Scorecards.jsx";
 import Dashboard from "./features/dashboard/Dashboard.jsx";
 import UploadActivity from "./features/activities/UploadActivity.jsx";
+import Tracks from "./features/students/Tracks.jsx";
 const screens = {
+  tracks: Tracks,
   upload: UploadActivity,
   previous: ActivityLibrary,
   build: ActivityBuilder,
