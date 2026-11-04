@@ -1,8 +1,7 @@
 {
   "minimumVersion": "1.0",
   "notes": [
-    "Choose Teacher or Student on the sign-in screen; students need only their Student ID.",
-    "Students can open assigned activities and submit answers, with results calculated and saved by the server.",
-    "Student sessions show only their own activities and results and expire after eight hours."
+    "Activities now includes an Upload HTML screen with file and embedded JSON validation.",
+    "Test uploaded activities in an isolated local preview before future assignment integration."
   ]
 }

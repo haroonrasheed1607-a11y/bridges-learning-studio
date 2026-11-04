@@ -1,4 +1,5 @@
 export const labels = {
+  upload: "Upload and test an HTML activity.",
   build: "Build a new Activity",
   previous: "Activities",
   students: "Sign Up Students",

@@ -10,7 +10,9 @@ import StudentRegistration from "./features/students/StudentRegistration.jsx";
 import StudentGroups from "./features/students/StudentGroups.jsx";
 import Scorecards from "./features/scorecards/Scorecards.jsx";
 import Dashboard from "./features/dashboard/Dashboard.jsx";
+import UploadActivity from "./features/activities/UploadActivity.jsx";
 const screens = {
+  upload: UploadActivity,
   previous: ActivityLibrary,
   build: ActivityBuilder,
   students: StudentRegistration,

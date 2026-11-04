@@ -57,9 +57,10 @@ export default function Navbar() {
       <nav className="main-navigation" aria-label="Main navigation">
         <NavDropdown
           label="Activities"
-          active={["previous", "build"].includes(view)}
+          active={["previous", "build", "upload"].includes(view)}
           items={[
             { label: "Create", action: createActivity },
+            { label: "Upload HTML", action: () => navigate("upload") },
             {
               label: "Previous Activities",
               action: () => navigate("previous"),
